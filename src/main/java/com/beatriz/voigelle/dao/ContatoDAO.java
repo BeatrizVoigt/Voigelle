@@ -1,7 +1,7 @@
-package gerenciacontato.dao;
+package com.beatriz.voigelle.dao;
 
-import gerenciacontato.config.Banco;
-import gerenciacontato.model.Contato;
+import com.beatriz.voigelle.config.Banco;
+import com.beatriz.voigelle.model.Contato;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

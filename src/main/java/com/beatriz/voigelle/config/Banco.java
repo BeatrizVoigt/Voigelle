@@ -1,4 +1,4 @@
-package gerenciacontato.config;
+package com.beatriz.voigelle.config;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

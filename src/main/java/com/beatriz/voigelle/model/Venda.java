@@ -1,6 +1,6 @@
-package gerenciacontato.model;
+package com.beatriz.voigelle.model;
 
-import gerenciacontato.model.Cliente;
+import com.beatriz.voigelle.model.Cliente;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,7 @@
-package gerenciacontato.service;
+package com.beatriz.voigelle.service;
 
-import gerenciacontato.dao.ContatoDAO;
-import gerenciacontato.model.Contato;
+import com.beatriz.voigelle.dao.ContatoDAO;
+import com.beatriz.voigelle.model.Contato;
 import java.util.List;
 
 public class ContatoService {

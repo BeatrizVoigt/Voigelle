@@ -1,7 +1,7 @@
-package gerenciacontato.gui;
+package com.beatriz.voigelle.gui;
 
-import gerenciacontato.model.Contato;
-import gerenciacontato.service.ContatoService;
+import com.beatriz.voigelle.model.Contato;
+import com.beatriz.voigelle.service.ContatoService;
 import java.util.List;
 import java.util.Scanner;
 

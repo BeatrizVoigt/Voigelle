@@ -1,4 +1,4 @@
-package gerenciacontato.model;
+package com.beatriz.voigelle.model;
 
 public class Pessoa {
     private int id;
