@@ -1,11 +1,11 @@
 package com.beatriz.voigelle.gui;
 
-import com.beatriz.voigelle.model.Contato;
-import com.beatriz.voigelle.service.ContatoService;
-import java.util.List;
-import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
-
+import java.awt.Graphics;
+import java.awt.Image;
+import java.io.File;
+import java.net.URL;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -13,367 +13,322 @@ import javax.swing.table.DefaultTableModel;
  */
 public class TelaPrincipal extends javax.swing.JFrame {
 
-    ContatoService contatoService;
-    Contato contato;
+    // Armazena a imagem que será usada como fundo da tela.
+    private Image imagemFundo;
+    
+    // Guarda a tela de gerenciamento de clientes aberta.
+    private GerenciaClienteGUI gerenciaClienteGUI;
+    
+    // Guarda a tela de consulta de clientes aberta.
+    private ConsultaClienteGUI consultaClienteGUI;
+    
+    // Guarda a tela de cadastro de usuários aberta.
+    private CadastroUsuarioGUI cadastroUsuarioGUI;
 
     /**
      * Creates new form TelaPrincipal
      */
+    // Construtor: prepara a tela principal.
     public TelaPrincipal() {
-           initComponents();
-        this.contatoService = new ContatoService();
-        carregarTabela();
+        carregarImagemFundo();
+        initComponents();
+        // A tela principal NÃO abre nenhuma tela ao iniciar
     }
-    
-    public void carregarTabela() {
-      DefaultTableModel modelo = (DefaultTableModel) TabelaListar.getModel();
-        modelo.setRowCount(0);
- 
-        List<Contato> contatos = contatoService.listarContatos();
- 
-        for (Contato c : contatos) {
-            modelo.addRow(new Object[]{
-                c.getId(),
-                c.getNome(),
-                c.getTelefone(),
-                c.getEmail()
-            });
+
+    // Carrega a imagem de fundo.
+    private void carregarImagemFundo() {
+        try {
+            // Primeiro, tenta localizar a imagem nos recursos do projeto. (Na pastinha IMG)
+            URL url = getClass().getResource("/com/beatriz/voigelle/img/logoVoigelle.png");
+            if (url != null) {
+                imagemFundo = new ImageIcon(url).getImage();
+                return;
+            }
+            
+            // Se não encontrar, procura na pasta de recursos.
+            File file = new File("src/main/resources/com/beatriz/voigelle/img/logoVoigelle.png");
+            if (file.exists()) {
+                imagemFundo = ImageIO.read(file);
+                return;
+            }
+            
+            // Como última tentativa, procura na pasta do código Java.
+            file = new File("src/main/java/com/beatriz/voigelle/img/logoVoigelle.png");
+            if (file.exists()) {
+                imagemFundo = ImageIO.read(file);
+            }
+            
+            // Mensagem de erro.
+        } catch (Exception e) {
+            System.err.println("Erro ao carregar imagem de fundo: " + e.getMessage());
         }
     }
-    
-    private void limparDados() {
-        idEmEdicao = null;
-        txtNome.setText("");
-        txtTelefone.setText("");
-        txtEmail.setText("");
-        txtNome.setEnabled(true);
-        btnCancelar.setVisible(false);
-        btnSalvar.setText("Salvar");
+
+    // Abre a tela de gerenciamento de clientes.
+    public void abrirGerenciaCliente() {
+        
+         // Cria uma nova tela se ela ainda não existir ou estiver fechada.
+        if (gerenciaClienteGUI == null || gerenciaClienteGUI.isClosed()) {
+            gerenciaClienteGUI = new GerenciaClienteGUI();
+            
+             // Adiciona a tela dentro da área de trabalho principal.
+            jDesktopPane1.add(gerenciaClienteGUI);
+            gerenciaClienteGUI.setVisible(true);
+            
+            // Tenta deixar a tela selecionada.
+            try {
+                gerenciaClienteGUI.setSelected(true);
+            } catch (java.beans.PropertyVetoException ignored) {
+            }
+            
+            // Se a tela já existir, torna visível e a coloca na frente.
+        } else {
+            gerenciaClienteGUI.setVisible(true);
+            gerenciaClienteGUI.toFront();
+            try {
+                gerenciaClienteGUI.setSelected(true);
+            } catch (java.beans.PropertyVetoException ignored) {
+            }
+        }
     }
-    
+
+    // Abre a tela de consulta de clientes.
+    public void abrirConsultaCliente() {
+        if (consultaClienteGUI == null || consultaClienteGUI.isClosed()) {
+            consultaClienteGUI = new ConsultaClienteGUI();
+            jDesktopPane1.add(consultaClienteGUI);
+            consultaClienteGUI.setVisible(true);
+            try {
+                consultaClienteGUI.setSelected(true);
+            } catch (java.beans.PropertyVetoException ignored) {
+            }
+        } else {
+            consultaClienteGUI.setVisible(true);
+            consultaClienteGUI.toFront();
+            try {
+                consultaClienteGUI.setSelected(true);
+            } catch (java.beans.PropertyVetoException ignored) {
+            }
+        }
+    }
+
+    // Abre a tela de cadastro de usuários.
+    public void abrirCadastroUsuario() {
+        
+         // Cria a tela se ela ainda não existir ou estiver fechada.
+        if (cadastroUsuarioGUI == null || cadastroUsuarioGUI.isClosed()) {
+            cadastroUsuarioGUI = new CadastroUsuarioGUI();
+            
+             // Adiciona a tela dentro da área de trabalho principal.
+            jDesktopPane1.add(cadastroUsuarioGUI);
+            cadastroUsuarioGUI.setVisible(true);
+            
+             // Tenta selecionar a tela aberta.
+            try {
+                cadastroUsuarioGUI.setSelected(true);
+            } catch (java.beans.PropertyVetoException ignored) {
+            }
+            
+             // Se já estiver aberta, mostra a tela e a coloca na frente.
+        } else {
+            cadastroUsuarioGUI.setVisible(true);
+            cadastroUsuarioGUI.toFront();
+            try {
+                cadastroUsuarioGUI.setSelected(true);
+            } catch (java.beans.PropertyVetoException ignored) {
+            }
+        }
+    }
+
+     // Abre a tela de gerenciamento de produtos.
+    public void abrirProdutos() {
+        ProdutosGUI produtos = new ProdutosGUI();
+        
+        // Define que a tela será fechada sem encerrar o sistema inteiro.
+        produtos.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        
+         // Centraliza a tela em relação à janela principal.
+        produtos.setLocationRelativeTo(this);
+        
+        // Exibe a tela de produtos.
+        produtos.setVisible(true);
+    }
+
+     // Abre a tela de consulta do estoque.
+    public void abrirEstoque() {
+        EstoqueGUI estoque = new EstoqueGUI();
+        
+        // Centraliza a tela em relação à janela principal.
+        estoque.setLocationRelativeTo(this);
+        
+        // Exibe a tela de estoque.
+        estoque.setVisible(true);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
      * regenerated by the Form Editor.
      */
+    //// Inicializa e organiza os componentes visuais da tela.
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        lblTitulo = new javax.swing.JLabel();
-        txtNome = new javax.swing.JTextField();
-        lblNome = new javax.swing.JLabel();
-        lblTelefone = new javax.swing.JLabel();
-        txtTelefone = new javax.swing.JTextField();
-        lblEmail = new javax.swing.JLabel();
-        txtEmail = new javax.swing.JTextField();
-        btnSalvar = new javax.swing.JButton();
-        btnexcluir = new javax.swing.JButton();
-        tblTabela = new javax.swing.JScrollPane();
-        TabelaListar = new javax.swing.JTable();
-        btnCarregar = new javax.swing.JButton();
-        btnEditar = new javax.swing.JButton();
-        btnApagar = new javax.swing.JButton();
+        jDesktopPane1 = new javax.swing.JDesktopPane() {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                super.paintComponent(g);
+                if (imagemFundo != null) {
+                    int imgW = imagemFundo.getWidth(this);
+                    int imgH = imagemFundo.getHeight(this);
+                    if (imgW > 0 && imgH > 0) {
+                        double scale = Math.min((double) getWidth() / imgW, (double) getHeight() / imgH);
+                        int drawW = (int) (imgW * scale);
+                        int drawH = (int) (imgH * scale);
+                        int x = (getWidth() - drawW) / 2;
+                        int y = (getHeight() - drawH) / 2;
+                        g.drawImage(imagemFundo, x, y, drawW, drawH, this);
+                    }
+                }
+            }
+        };
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenuContatos = new javax.swing.JMenu();
+        jMenuItemClientes = new javax.swing.JMenuItem();
+        jMenuItemConsultaClientes = new javax.swing.JMenuItem();
+        jMenuUsuarios = new javax.swing.JMenu();
+        jMenuItemUsuarios = new javax.swing.JMenuItem();
+        jMenuProdutos = new javax.swing.JMenu();
+        jMenuItemProdutos = new javax.swing.JMenuItem();
+        jMenuItemEstoque = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Voigelle - Sistema Principal");
 
-        lblTitulo.setFont(new java.awt.Font("Segoe UI Light", 1, 24)); // NOI18N
-        lblTitulo.setForeground(new java.awt.Color(255, 0, 204));
-        lblTitulo.setText("Gerencia Contatos");
+        jMenuContatos.setText("Clientes");
 
-        txtNome.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItemClientes.setText("Cadastrar / Gerenciar Cliente");
+        jMenuItemClientes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtNomeActionPerformed(evt);
+                jMenuItemClientesActionPerformed(evt);
             }
         });
+        jMenuContatos.add(jMenuItemClientes);
 
-        lblNome.setFont(new java.awt.Font("Segoe UI Light", 1, 18)); // NOI18N
-        lblNome.setText("Nome:");
-
-        lblTelefone.setFont(new java.awt.Font("Segoe UI Light", 1, 18)); // NOI18N
-        lblTelefone.setText("Telefone:");
-
-        txtTelefone.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItemConsultaClientes.setText("Consultar Clientes");
+        jMenuItemConsultaClientes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtTelefoneActionPerformed(evt);
+                abrirConsultaCliente();
             }
         });
+        jMenuContatos.add(jMenuItemConsultaClientes);
 
-        lblEmail.setFont(new java.awt.Font("Segoe UI Light", 1, 18)); // NOI18N
-        lblEmail.setText("Email:");
+        jMenuBar1.add(jMenuContatos);
 
-        txtEmail.addActionListener(new java.awt.event.ActionListener() {
+        jMenuUsuarios.setText("Usuários");
+
+        jMenuItemUsuarios.setText("Cadastrar Usuário");
+        jMenuItemUsuarios.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtEmailActionPerformed(evt);
+                jMenuItemUsuariosActionPerformed(evt);
             }
         });
+        jMenuUsuarios.add(jMenuItemUsuarios);
 
-        btnSalvar.setForeground(new java.awt.Color(255, 0, 255));
-        btnSalvar.setText("Salvar");
-        btnSalvar.addActionListener(new java.awt.event.ActionListener() {
+        jMenuBar1.add(jMenuUsuarios);
+
+        jMenuProdutos.setText("Produtos");
+
+        jMenuItemProdutos.setText("Gerenciar Produtos");
+        jMenuItemProdutos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSalvarActionPerformed(evt);
+                jMenuItemProdutosActionPerformed(evt);
             }
         });
+        jMenuProdutos.add(jMenuItemProdutos);
 
-        btnexcluir.setForeground(new java.awt.Color(255, 0, 255));
-        btnexcluir.setText("Excluir");
-        btnexcluir.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItemEstoque.setText("Ver Estoque");
+        jMenuItemEstoque.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnexcluirActionPerformed(evt);
+                abrirEstoque();
             }
         });
+        jMenuProdutos.add(jMenuItemEstoque);
 
-        TabelaListar.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        tblTabela.setViewportView(TabelaListar);
+        jMenuBar1.add(jMenuProdutos);
 
-        btnCarregar.setText("Carregar");
-        btnCarregar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCarregarActionPerformed(evt);
-            }
-        });
-
-        btnEditar.setText("Editar");
-        btnEditar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnEditarActionPerformed(evt);
-            }
-        });
-
-        btnApagar.setText("Apagar");
-        btnApagar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnApagarActionPerformed(evt);
-            }
-        });
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(btnSalvar)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnexcluir))
-                            .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(54, 54, 54)
-                                .addComponent(lblNome))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(45, 45, 45)
-                                .addComponent(lblTelefone))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(54, 54, 54)
-                                .addComponent(lblEmail)))
-                        .addGap(20, 20, 20))
-                    .addComponent(lblTitulo))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(tblTabela, javax.swing.GroupLayout.PREFERRED_SIZE, 418, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnApagar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnEditar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnCarregar)
-                        .addGap(4, 4, 4)))
-                .addContainerGap(224, Short.MAX_VALUE))
+            .addComponent(jDesktopPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 900, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lblTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lblNome)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(13, 13, 13)
-                        .addComponent(lblTelefone)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lblEmail)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnSalvar)
-                            .addComponent(btnexcluir)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnCarregar)
-                            .addComponent(btnEditar)
-                            .addComponent(btnApagar))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(tblTabela, javax.swing.GroupLayout.PREFERRED_SIZE, 221, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(19, Short.MAX_VALUE))
+            .addComponent(jDesktopPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 600, Short.MAX_VALUE)
         );
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtNomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNomeActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtNomeActionPerformed
+    private void jMenuItemClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemClientesActionPerformed
+        abrirGerenciaCliente();
+    }//GEN-LAST:event_jMenuItemClientesActionPerformed
 
-    private void txtTelefoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTelefoneActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtTelefoneActionPerformed
+    private void jMenuItemUsuariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemUsuariosActionPerformed
+        abrirCadastroUsuario();
+    }//GEN-LAST:event_jMenuItemUsuariosActionPerformed
 
-    private void txtEmailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEmailActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtEmailActionPerformed
-
-    private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
-        String nome = txtNome.getText();
-        String telefone = txtTelefone.getText();
-        String email = txtEmail.getText();
- 
-        if (nome == null || nome.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "O nome nao pode ser vazio!",
-                    "Aviso", JOptionPane.WARNING_MESSAGE);
- 
-            txtNome.requestFocus();
-            return;
-        }
- 
-        if (telefone == null || telefone.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "O Telefone nao pode ser vazio!",
-                    "Aviso", JOptionPane.WARNING_MESSAGE);
- 
-            txtTelefone.requestFocus();
-            return;
-        }
- 
-        if (email == null || email.trim().isEmpty() || !email.contains("@")) {
-            JOptionPane.showMessageDialog(this,
-                    "Email inválido!",
-                    "Aviso", JOptionPane.WARNING_MESSAGE);
- 
-            txtEmail.requestFocus();
-            return;
-        }
- 
-        String mensagem;
- 
-        if (idEmEdicao != null) {
-            contatoService.atualizarContato(idEmEdicao, nome, telefone, email);
-            mensagem = "Contato atualizado com sucesso!";
-        } else {
-            contatoService.cadastrarContato(nome, telefone, email);
-            mensagem = "Contato cadastrado com sucesso!";
-        }
- 
-        limparDados();
- 
-        JOptionPane.showMessageDialog(this,
-                mensagem,
-                "Confirmação", JOptionPane.INFORMATION_MESSAGE);
- 
-        txtNome.requestFocus();
- 
-        carregarTabela();
-    }      
-    }//GEN-LAST:event_btnSalvarActionPerformed
-
-    private void btnexcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnexcluirActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnexcluirActionPerformed
-
-    private void btnCarregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCarregarActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnCarregarActionPerformed
-
-    private void btnEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarActionPerformed
-
-    int linha = TabelaListar.getSelectedRow();
-    if (linha != -1) {
-        int id = Integer.parseInt(TabelaListar.getValueAt(linha, 0).toString());
-        String nome = TabelaListar.getValueAt(linha, 1).toString();
-        String telefone = TabelaListar.getValueAt(linha, 2).toString();
-        String email = TabelaListar.getValueAt(linha, 3).toString();
-
-        txtNome.setEnabled(false);
-        txtNome.setText(nome);
-        txtTelefone.setText(telefone);
-        txtEmail.setText(email);
-
-        this.contato = new Contato(id, nome, telefone, email);
-        
-        editaContatoGUI telaEditar = new EditaContatoGui(this, true, contato);
-        telaEditar.setVisible(True);
-        
-
-    } else {
-        JOptionPane.showMessageDialog(this,
-                "Selecione um contato primeiro!",
-                "Aviso", JOptionPane.WARNING_MESSAGE);
-    }
-
-    }//GEN-LAST:event_btnEditarActionPerformed
-
-    private void btnApagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnApagarActionPerformed
-        // TODO add your handling code here:
-    int linha = tblContatos.getSelectedRow();
-
-        if (linha != -1){
-            int id = Integer.parseInt(tblContatos.getValueAt(linha, 0).toString());
-            
-            contatoService.excluirContato(id);
-            carregarTabela();
-
-        }else {
-            JOptionPane.showMessageDialog(this,
-                    "Selecione um contato na lista para apagar!",
-                    "Aviso", JOptionPane.WARNING_MESSAGE);
-        }
-    }//GEN-LAST:event_btnApagarActionPerformed
+    private void jMenuItemProdutosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemProdutosActionPerformed
+        abrirProdutos();
+    }//GEN-LAST:event_jMenuItemProdutosActionPerformed
 
     /**
      * @param args the command line arguments
      */
+    
+    // Método principal: inicia a aplicação pela tela principal.
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(TelaPrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        // Cria e exibe a tela principal na fila de eventos do Swing.
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new TelaPrincipal().setVisible(true);
+            }
+        });
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTable TabelaListar;
-    private javax.swing.JButton btnApagar;
-    private javax.swing.JButton btnCarregar;
-    private javax.swing.JButton btnEditar;
-    private javax.swing.JButton btnSalvar;
-    private javax.swing.JButton btnexcluir;
-    private javax.swing.JLabel lblEmail;
-    private javax.swing.JLabel lblNome;
-    private javax.swing.JLabel lblTelefone;
-    private javax.swing.JLabel lblTitulo;
-    private javax.swing.JScrollPane tblTabela;
-    private javax.swing.JTextField txtEmail;
-    private javax.swing.JTextField txtNome;
-    private javax.swing.JTextField txtTelefone;
+    private javax.swing.JDesktopPane jDesktopPane1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenu jMenuContatos;
+    private javax.swing.JMenuItem jMenuItemClientes;
+    private javax.swing.JMenuItem jMenuItemConsultaClientes;
+    private javax.swing.JMenuItem jMenuItemEstoque;
+    private javax.swing.JMenuItem jMenuItemProdutos;
+    private javax.swing.JMenuItem jMenuItemUsuarios;
+    private javax.swing.JMenu jMenuProdutos;
+    private javax.swing.JMenu jMenuUsuarios;
     // End of variables declaration//GEN-END:variables
 }
-

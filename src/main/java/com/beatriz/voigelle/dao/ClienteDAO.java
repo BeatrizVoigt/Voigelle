@@ -13,10 +13,38 @@ import java.util.List;
 
 public class ClienteDAO {
 
-    public void inserir(Cliente cliente) {
+    public ClienteDAO() {
+        criarTabelaSeNaoExistir();
+    }
 
-        String sql = "INSERT INTO cliente (nome, cpf, telefone, email) "
-                   + "VALUES (?, ?, ?, ?)";
+    public void criarTabelaSeNaoExistir() {
+        String sql = "CREATE TABLE IF NOT EXISTS cliente ("
+                + "id_cliente SERIAL PRIMARY KEY, "
+                + "nome VARCHAR(100) NOT NULL, "
+                + "cpf VARCHAR(20), "
+                + "telefone VARCHAR(30), "
+                + "email VARCHAR(100), "
+                + "endereco VARCHAR(255)"
+                + ")";
+
+        try (Connection con = Banco.conectar();
+             Statement stmt = con.createStatement()) {
+
+            stmt.executeUpdate(sql);
+
+            // Garante que as colunas cpf e endereco existam caso a tabela já existisse
+            stmt.executeUpdate("ALTER TABLE cliente ADD COLUMN IF NOT EXISTS cpf VARCHAR(20)");
+            stmt.executeUpdate("ALTER TABLE cliente ADD COLUMN IF NOT EXISTS endereco VARCHAR(255)");
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao verificar/criar tabela cliente: " + e.getMessage());
+        }
+    }
+
+    // Cadastra um novo cliente no banco de dados.
+    public boolean inserir(Cliente cliente) {
+        String sql = "INSERT INTO cliente (nome, cpf, telefone, email, endereco) "
+                   + "VALUES (?, ?, ?, ?, ?)";
 
         try (Connection con = Banco.conectar();
              PreparedStatement stmt = con.prepareStatement(
@@ -26,24 +54,28 @@ public class ClienteDAO {
             stmt.setString(2, cliente.getCpf());
             stmt.setString(3, cliente.getTelefone());
             stmt.setString(4, cliente.getEmail());
+            stmt.setString(5, cliente.getEndereco());
 
-            stmt.executeUpdate();
-
-            try (ResultSet rs = stmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    cliente.setId(rs.getInt(1));
+            int linhas = stmt.executeUpdate();
+            if (linhas > 0) {
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        cliente.setId(rs.getInt(1));
+                    }
                 }
+                return true;
             }
 
         } catch (SQLException e) {
-            System.out.println("Erro ao inserir cliente: " + e.getMessage());
+            System.err.println("Erro ao inserir cliente: " + e.getMessage());
         }
+        return false;
     }
 
-    public void atualizar(Cliente cliente) {
-
+    // Atualiza os dados de um cliente já cadastrado.
+    public boolean atualizar(Cliente cliente) {
         String sql = "UPDATE cliente "
-                   + "SET nome = ?, cpf = ?, telefone = ?, email = ? "
+                   + "SET nome = ?, cpf = ?, telefone = ?, email = ?, endereco = ? "
                    + "WHERE id_cliente = ?";
 
         try (Connection con = Banco.conectar();
@@ -53,36 +85,38 @@ public class ClienteDAO {
             stmt.setString(2, cliente.getCpf());
             stmt.setString(3, cliente.getTelefone());
             stmt.setString(4, cliente.getEmail());
-            stmt.setInt(5, cliente.getId());
+            stmt.setString(5, cliente.getEndereco());
+            stmt.setInt(6, cliente.getId());
 
-            stmt.executeUpdate();
+            return stmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Erro ao atualizar cliente: " + e.getMessage());
+            System.err.println("Erro ao atualizar cliente: " + e.getMessage());
         }
+        return false;
     }
 
-    public void excluir(int id) {
-
+    // Exclui um cliente usando seu ID.
+    public boolean excluir(int id) {
         String sql = "DELETE FROM cliente WHERE id_cliente = ?";
 
         try (Connection con = Banco.conectar();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
-
-            stmt.executeUpdate();
+            return stmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Erro ao excluir cliente: " + e.getMessage());
+            System.err.println("Erro ao excluir cliente: " + e.getMessage());
         }
+        return false;
     }
 
+    // Busca todos os clientes cadastrados e retorna uma lista.
     public List<Cliente> listarTodos() {
-
         List<Cliente> lista = new ArrayList<>();
 
-        String sql = "SELECT id_cliente, nome, cpf, telefone, email "
+        String sql = "SELECT id_cliente, nome, cpf, telefone, email, endereco "
                    + "FROM cliente ORDER BY nome";
 
         try (Connection con = Banco.conectar();
@@ -90,28 +124,27 @@ public class ClienteDAO {
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-
                 Cliente cliente = new Cliente(
                         rs.getInt("id_cliente"),
                         rs.getString("nome"),
                         rs.getString("cpf"),
                         rs.getString("telefone"),
-                        rs.getString("email")
+                        rs.getString("email"),
+                        rs.getString("endereco")
                 );
-
                 lista.add(cliente);
             }
 
         } catch (SQLException e) {
-            System.out.println("Erro ao listar clientes: " + e.getMessage());
+            System.err.println("Erro ao listar clientes: " + e.getMessage());
         }
 
         return lista;
     }
 
+    // Busca um cliente específico pelo ID.
     public Cliente buscarPorId(int id) {
-
-        String sql = "SELECT id_cliente, nome, cpf, telefone, email "
+        String sql = "SELECT id_cliente, nome, cpf, telefone, email, endereco "
                    + "FROM cliente WHERE id_cliente = ?";
 
         Cliente cliente = null;
@@ -122,21 +155,20 @@ public class ClienteDAO {
             stmt.setInt(1, id);
 
             try (ResultSet rs = stmt.executeQuery()) {
-
                 if (rs.next()) {
-
                     cliente = new Cliente(
                             rs.getInt("id_cliente"),
                             rs.getString("nome"),
                             rs.getString("cpf"),
                             rs.getString("telefone"),
-                            rs.getString("email")
+                            rs.getString("email"),
+                            rs.getString("endereco")
                     );
                 }
             }
 
         } catch (SQLException e) {
-            System.out.println("Erro ao buscar cliente: " + e.getMessage());
+            System.err.println("Erro ao buscar cliente: " + e.getMessage());
         }
 
         return cliente;

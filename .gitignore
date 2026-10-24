@@ -1,2 +1,3 @@
-/voigelle/build/
-/voigelle/.nb-gradle/
+.gradle/
+build/
+.nb-gradle/

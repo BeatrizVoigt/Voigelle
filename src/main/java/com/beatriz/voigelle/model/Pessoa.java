@@ -6,19 +6,25 @@ public class Pessoa {
     private String cpf;
     private String telefone;
     private String email;
+    private String endereco;
 
     // Construtor vazio 
     public Pessoa() {
     }
 
-    // Construtor completo, recebe todos os dados de uma vez
-
+    // Construtor sem endereco (compatibilidade)
     public Pessoa(int id, String nome, String cpf, String telefone, String email) {
+        this(id, nome, cpf, telefone, email, "");
+    }
+
+    // Construtor completo
+    public Pessoa(int id, String nome, String cpf, String telefone, String email, String endereco) {
         this.id = id;
         this.nome = nome;
         this.cpf = cpf;
         this.telefone = telefone;
         this.email = email;
+        this.endereco = endereco;
     }
 
     // Getters e Setters:
@@ -62,11 +68,16 @@ public class Pessoa {
         this.email = email;
     }
 
-  
-    // cada subclasse  pode mudar esse comportamento.
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
+    }
+
     @Override
     public String toString() {
-        return "Id: " + id + " | Nome: " + nome + " | CPF: " + cpf;
+        return "Id: " + id + " | Nome: " + nome + " | CPF: " + cpf + " | Endereço: " + endereco;
     }
-}   
-
+}

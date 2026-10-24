@@ -10,12 +10,16 @@ public class Cliente extends Pessoa {
         super(id, nome, cpf, telefone, email);
     }
 
+    public Cliente(int id, String nome, String cpf, String telefone, String email, String endereco) {
+        super(id, nome, cpf, telefone, email, endereco);
+    }
+
     // POLIMORFISMO: Cliente tem seu PRÓPRIO toString(), diferente do de Pessoa
     @Override
     public String toString() {
         return "Cliente -> " + super.toString()
                 + " | Telefone: " + getTelefone()
-                + " | Email: " + getEmail();
+                + " | Email: " + getEmail()
+                + " | Endereço: " + getEndereco();
     }
-}  
-
+}
