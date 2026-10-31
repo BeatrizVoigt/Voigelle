@@ -46,9 +46,12 @@ public class GerenciaClienteGUI extends JInternalFrame {
     private JTextField txtTelefone;
     private JTextField txtEmail;
     private JTextField txtEndereco;
+    private JTextField txtNumero;
+    private JTextField txtBairro;
+    private JTextField txtCidade;
+    private JTextField txtEstado;
     private JButton    btnSalvar;
     private JButton    btnLimpar;
-    private JButton    btnConsultar;
 
     /**
      * Construtor padrão (modo novo cadastro).
@@ -164,27 +167,13 @@ public class GerenciaClienteGUI extends JInternalFrame {
         painelBotoes.add(btnSalvar);
 
         gbc.gridy  = linha++;
-        gbc.insets = new Insets(0, 0, 14, 0);
-        cartao.add(painelBotoes, gbc);
-
-        // ── Botão Secundário para abrir a Consulta ────────────────────────────
-        btnConsultar = new JButton("🔍  Ir para Consulta de Clientes");
-        btnConsultar.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnConsultar.setForeground(COR_PRIMARIA);
-        btnConsultar.setContentAreaFilled(false);
-        btnConsultar.setBorderPainted(false);
-        btnConsultar.setFocusPainted(false);
-        btnConsultar.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnConsultar.addActionListener(e -> abrirTelaConsulta());
-
-        gbc.gridy  = linha++;
         gbc.insets = new Insets(0, 0, 0, 0);
-        cartao.add(btnConsultar, gbc);
+        cartao.add(painelBotoes, gbc);
 
         return cartao;
     }
 
-    /** Coluna esquerda: Nome, CPF, Telefone */
+    /** Coluna esquerda: Nome, CPF, Telefone, E-mail */
     private JPanel criarColunaEsquerda() {
         JPanel col = new JPanel(new GridBagLayout());
         col.setOpaque(false);
@@ -196,41 +185,52 @@ public class GerenciaClienteGUI extends JInternalFrame {
 
         // Nome
         g.gridy  = linha++;
-        g.insets = new Insets(0, 0, 6, 0);
+        g.insets = new Insets(0, 0, 4, 0);
         col.add(criarLabel("Nome Completo *"), g);
 
         txtNome = criarCampoTexto("Ex: Mariana Souza Silva");
         txtNome.addActionListener(e -> txtCpf.requestFocus());
         g.gridy  = linha++;
-        g.insets = new Insets(0, 0, 16, 0);
+        g.insets = new Insets(0, 0, 14, 0);
         col.add(txtNome, g);
 
         // CPF
         g.gridy  = linha++;
-        g.insets = new Insets(0, 0, 6, 0);
+        g.insets = new Insets(0, 0, 4, 0);
         col.add(criarLabel("CPF"), g);
 
         txtCpf = criarCampoTexto("000.000.000-00");
         txtCpf.addActionListener(e -> txtTelefone.requestFocus());
         g.gridy  = linha++;
-        g.insets = new Insets(0, 0, 16, 0);
+        g.insets = new Insets(0, 0, 14, 0);
         col.add(txtCpf, g);
 
         // Telefone
         g.gridy  = linha++;
-        g.insets = new Insets(0, 0, 6, 0);
+        g.insets = new Insets(0, 0, 4, 0);
         col.add(criarLabel("Telefone / WhatsApp"), g);
 
         txtTelefone = criarCampoTexto("(00) 00000-0000");
         txtTelefone.addActionListener(e -> txtEmail.requestFocus());
         g.gridy  = linha++;
-        g.insets = new Insets(0, 0, 0, 0);
+        g.insets = new Insets(0, 0, 14, 0);
         col.add(txtTelefone, g);
+
+        // E-mail
+        g.gridy  = linha++;
+        g.insets = new Insets(0, 0, 4, 0);
+        col.add(criarLabel("E-mail"), g);
+
+        txtEmail = criarCampoTexto("cliente@exemplo.com");
+        txtEmail.addActionListener(e -> txtEndereco.requestFocus());
+        g.gridy  = linha++;
+        g.insets = new Insets(0, 0, 0, 0);
+        col.add(txtEmail, g);
 
         return col;
     }
 
-    /** Coluna direita: E-mail, Endereço */
+    /** Coluna direita: Endereço, Número, Bairro, Cidade, Estado (cada um em sua linha) */
     private JPanel criarColunaDireita() {
         JPanel col = new JPanel(new GridBagLayout());
         col.setOpaque(false);
@@ -240,27 +240,60 @@ public class GerenciaClienteGUI extends JInternalFrame {
         g.gridx   = 0;
         int linha = 0;
 
-        // E-mail
+        // Endereço (Rua / Av.)
         g.gridy  = linha++;
-        g.insets = new Insets(0, 0, 6, 0);
-        col.add(criarLabel("E-mail"), g);
+        g.insets = new Insets(0, 0, 4, 0);
+        col.add(criarLabel("Endereço (Rua / Av.)"), g);
 
-        txtEmail = criarCampoTexto("cliente@exemplo.com");
-        txtEmail.addActionListener(e -> txtEndereco.requestFocus());
+        txtEndereco = criarCampoTexto("Ex: Rua das Flores");
+        txtEndereco.addActionListener(e -> txtNumero.requestFocus());
         g.gridy  = linha++;
-        g.insets = new Insets(0, 0, 16, 0);
-        col.add(txtEmail, g);
+        g.insets = new Insets(0, 0, 10, 0);
+        col.add(txtEndereco, g);
 
-        // Endereço
+        // Número
         g.gridy  = linha++;
-        g.insets = new Insets(0, 0, 6, 0);
-        col.add(criarLabel("Endereço Completo"), g);
+        g.insets = new Insets(0, 0, 4, 0);
+        col.add(criarLabel("Número"), g);
 
-        txtEndereco = criarCampoTexto("Rua, número, bairro e cidade");
-        txtEndereco.addActionListener(e -> btnSalvar.doClick());
+        txtNumero = criarCampoTexto("Ex: 123 ou S/N");
+        txtNumero.addActionListener(e -> txtBairro.requestFocus());
+        g.gridy  = linha++;
+        g.insets = new Insets(0, 0, 10, 0);
+        col.add(txtNumero, g);
+
+        // Bairro
+        g.gridy  = linha++;
+        g.insets = new Insets(0, 0, 4, 0);
+        col.add(criarLabel("Bairro"), g);
+
+        txtBairro = criarCampoTexto("Ex: Centro");
+        txtBairro.addActionListener(e -> txtCidade.requestFocus());
+        g.gridy  = linha++;
+        g.insets = new Insets(0, 0, 10, 0);
+        col.add(txtBairro, g);
+
+        // Cidade
+        g.gridy  = linha++;
+        g.insets = new Insets(0, 0, 4, 0);
+        col.add(criarLabel("Cidade"), g);
+
+        txtCidade = criarCampoTexto("Ex: Blumenau");
+        txtCidade.addActionListener(e -> txtEstado.requestFocus());
+        g.gridy  = linha++;
+        g.insets = new Insets(0, 0, 10, 0);
+        col.add(txtCidade, g);
+
+        // Estado
+        g.gridy  = linha++;
+        g.insets = new Insets(0, 0, 4, 0);
+        col.add(criarLabel("Estado (UF)"), g);
+
+        txtEstado = criarCampoTexto("Ex: SC");
+        txtEstado.addActionListener(e -> btnSalvar.doClick());
         g.gridy  = linha++;
         g.insets = new Insets(0, 0, 0, 0);
-        col.add(txtEndereco, g);
+        col.add(txtEstado, g);
 
         return col;
     }
@@ -365,7 +398,7 @@ public class GerenciaClienteGUI extends JInternalFrame {
         txtCpf.setText(cliente.getCpf() != null ? cliente.getCpf() : "");
         txtTelefone.setText(cliente.getTelefone() != null ? cliente.getTelefone() : "");
         txtEmail.setText(cliente.getEmail() != null ? cliente.getEmail() : "");
-        txtEndereco.setText(cliente.getEndereco() != null ? cliente.getEndereco() : "");
+        preencherCamposEndereco(cliente.getEndereco());
 
         lblStatusEdicao.setText("✏ Editando Cliente #" + idEmEdicao);
         lblStatusEdicao.setForeground(COR_PRIMARIA);
@@ -378,7 +411,7 @@ public class GerenciaClienteGUI extends JInternalFrame {
         String cpf      = txtCpf.getText().trim();
         String telefone = txtTelefone.getText().trim();
         String email    = txtEmail.getText().trim();
-        String endereco = txtEndereco.getText().trim();
+        String endereco = montarEnderecoCompleto();
 
         if (nome.isEmpty()) {
             JOptionPane.showMessageDialog(this,
@@ -426,43 +459,139 @@ public class GerenciaClienteGUI extends JInternalFrame {
         txtTelefone.setText("");
         txtEmail.setText("");
         txtEndereco.setText("");
+        txtNumero.setText("");
+        txtBairro.setText("");
+        txtCidade.setText("");
+        txtEstado.setText("");
         lblStatusEdicao.setText("● Novo Cadastro");
         lblStatusEdicao.setForeground(new Color(30, 150, 80));
         btnSalvar.setText("Salvar Cliente");
         txtNome.requestFocus();
     }
 
-    private void abrirTelaConsulta() {
-        JDesktopPane desktop = getDesktopPane();
-        if (desktop != null) {
-            // Procura se já existe uma tela de consulta aberta
-            for (JInternalFrame f : desktop.getAllFrames()) {
-                if (f instanceof ConsultaClienteGUI) {
-                    f.setVisible(true);
-                    f.toFront();
-                    try {
-                        f.setSelected(true);
-                    } catch (java.beans.PropertyVetoException ignored) {
-                    }
-                    return;
+    private String montarEnderecoCompleto() {
+        String rua    = txtEndereco.getText().trim();
+        String num    = txtNumero.getText().trim();
+        String bairro = txtBairro.getText().trim();
+        String cidade = txtCidade.getText().trim();
+        String estado = txtEstado.getText().trim().toUpperCase();
+
+        if (rua.isEmpty() && num.isEmpty() && bairro.isEmpty() && cidade.isEmpty() && estado.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        if (!rua.isEmpty()) {
+            sb.append(rua);
+        }
+        if (!num.isEmpty()) {
+            if (sb.length() > 0) sb.append(", Nº ");
+            sb.append(num);
+        }
+        if (!bairro.isEmpty()) {
+            if (sb.length() > 0) sb.append(" - Bairro: ");
+            sb.append(bairro);
+        }
+        if (!cidade.isEmpty()) {
+            if (sb.length() > 0) sb.append(" - ");
+            sb.append(cidade);
+        }
+        if (!estado.isEmpty()) {
+            if (!cidade.isEmpty()) {
+                sb.append("/");
+            } else if (sb.length() > 0) {
+                sb.append(" - ");
+            }
+            sb.append(estado);
+        }
+        return sb.toString();
+    }
+
+    private void preencherCamposEndereco(String endCompleto) {
+        txtEndereco.setText("");
+        txtNumero.setText("");
+        txtBairro.setText("");
+        txtCidade.setText("");
+        txtEstado.setText("");
+
+        if (endCompleto == null || endCompleto.trim().isEmpty()) {
+            return;
+        }
+
+        String resto = endCompleto.trim();
+
+        if (resto.contains(" - Bairro: ")) {
+            int idx = resto.indexOf(" - Bairro: ");
+            String antes = resto.substring(0, idx).trim();
+            String depois = resto.substring(idx + " - Bairro: ".length()).trim();
+            resto = antes;
+            if (depois.contains(" - ")) {
+                int idxHifen = depois.indexOf(" - ");
+                txtBairro.setText(depois.substring(0, idxHifen).trim());
+                String cidadeUf = depois.substring(idxHifen + 3).trim();
+                extrairCidadeEstado(cidadeUf);
+            } else if (depois.contains("/")) {
+                extrairCidadeEstado(depois);
+            } else {
+                txtBairro.setText(depois);
+            }
+        } else if (resto.contains(" - ")) {
+            String[] partes = resto.split(" - ");
+            if (partes.length >= 4) {
+                resto = partes[0].trim();
+                txtBairro.setText(partes[1].trim());
+                txtCidade.setText(partes[2].trim());
+                txtEstado.setText(partes[3].trim());
+            } else if (partes.length == 3) {
+                resto = partes[0].trim();
+                txtBairro.setText(partes[1].trim());
+                extrairCidadeEstado(partes[2].trim());
+            } else if (partes.length == 2) {
+                resto = partes[0].trim();
+                if (partes[1].contains("/")) {
+                    extrairCidadeEstado(partes[1].trim());
+                } else {
+                    txtBairro.setText(partes[1].trim());
                 }
             }
-            // Se não existe, cria e adiciona
-            ConsultaClienteGUI consulta = new ConsultaClienteGUI();
-            desktop.add(consulta);
-            consulta.setVisible(true);
-            try {
-                consulta.setSelected(true);
-            } catch (java.beans.PropertyVetoException ignored) {
+        }
+
+        if (resto.contains(", Nº ")) {
+            int idx = resto.indexOf(", Nº ");
+            txtEndereco.setText(resto.substring(0, idx).trim());
+            txtNumero.setText(resto.substring(idx + 5).trim());
+        } else if (resto.contains(", nº ")) {
+            int idx = resto.indexOf(", nº ");
+            txtEndereco.setText(resto.substring(0, idx).trim());
+            txtNumero.setText(resto.substring(idx + 5).trim());
+        } else if (resto.contains(", ")) {
+            int idx = resto.lastIndexOf(", ");
+            String possivelNum = resto.substring(idx + 2).trim();
+            if (possivelNum.matches("^[0-9]+.*$") || possivelNum.equalsIgnoreCase("s/n") || possivelNum.equalsIgnoreCase("sn")) {
+                txtEndereco.setText(resto.substring(0, idx).trim());
+                txtNumero.setText(possivelNum);
+            } else {
+                txtEndereco.setText(resto);
             }
         } else {
-            // Standalone
-            JFrame frame = new JFrame("Consulta de Clientes");
-            ConsultaClienteGUI consulta = new ConsultaClienteGUI();
-            frame.setContentPane(consulta.getContentPane());
-            frame.setSize(960, 620);
-            frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
+            txtEndereco.setText(resto);
+        }
+    }
+
+    private void extrairCidadeEstado(String str) {
+        if (str == null || str.isEmpty()) return;
+        if (str.contains("/")) {
+            String[] parts = str.split("/", 2);
+            txtCidade.setText(parts[0].trim());
+            txtEstado.setText(parts[1].trim());
+        } else if (str.contains(" - ")) {
+            String[] parts = str.split(" - ", 2);
+            txtCidade.setText(parts[0].trim());
+            txtEstado.setText(parts[1].trim());
+        } else if (str.matches("^[A-Za-z]{2}$")) {
+            txtEstado.setText(str.trim());
+        } else {
+            txtCidade.setText(str.trim());
         }
     }
 

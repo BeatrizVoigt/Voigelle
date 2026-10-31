@@ -21,8 +21,14 @@ public class Main {
 
         // Cria e exibe a tela de login.
         /* Create and display the form */
+        
+        // Agenda a execução da criação da interface gráfica na fila de eventos do Java.
         java.awt.EventQueue.invokeLater(new Runnable() {
+            
+            // Método que contém as instruções que serão executadas.
             public void run() {
+                
+                // Cria um novo objeto da classe loginGUI e torna a janela visível.
                 new loginGUI().setVisible(true);
             }
         });

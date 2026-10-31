@@ -49,6 +49,10 @@ public class Venda {
         return valorTotal;
     }
 
+    public void setValorTotal(double valorTotal) {
+        this.valorTotal = valorTotal;
+    }
+
     public Cliente getCliente() {
         return cliente;
     }
@@ -73,9 +77,8 @@ public class Venda {
         calcularValorTotal();
     }
 
-   
     // Percorre todos os itens e soma os subtotais
-    private void calcularValorTotal() {
+    public void calcularValorTotal() {
         double total = 0.0;
         for (ItemVenda item : itens) {
             total += item.getSubtotal();

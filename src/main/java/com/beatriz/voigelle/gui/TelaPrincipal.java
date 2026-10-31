@@ -25,6 +25,12 @@ public class TelaPrincipal extends javax.swing.JFrame {
     // Guarda a tela de cadastro de usuários aberta.
     private CadastroUsuarioGUI cadastroUsuarioGUI;
 
+    // Guarda a tela de lançamento de vendas aberta.
+    private VendaGUI vendaGUI;
+
+    // Guarda a tela de relatório de vendas aberta.
+    private RelatorioVendasGUI relatorioVendasGUI;
+
     /**
      * Creates new form TelaPrincipal
      */
@@ -165,6 +171,46 @@ public class TelaPrincipal extends javax.swing.JFrame {
         estoque.setVisible(true);
     }
 
+    // Abre a tela de lançamento de vendas.
+    public void abrirVenda() {
+        if (vendaGUI == null || vendaGUI.isClosed()) {
+            vendaGUI = new VendaGUI();
+            jDesktopPane1.add(vendaGUI);
+            vendaGUI.setVisible(true);
+            try {
+                vendaGUI.setSelected(true);
+            } catch (java.beans.PropertyVetoException ignored) {
+            }
+        } else {
+            vendaGUI.setVisible(true);
+            vendaGUI.toFront();
+            try {
+                vendaGUI.setSelected(true);
+            } catch (java.beans.PropertyVetoException ignored) {
+            }
+        }
+    }
+
+    // Abre a tela de relatório de vendas.
+    public void abrirRelatorioVendas() {
+        if (relatorioVendasGUI == null || relatorioVendasGUI.isClosed()) {
+            relatorioVendasGUI = new RelatorioVendasGUI();
+            jDesktopPane1.add(relatorioVendasGUI);
+            relatorioVendasGUI.setVisible(true);
+            try {
+                relatorioVendasGUI.setSelected(true);
+            } catch (java.beans.PropertyVetoException ignored) {
+            }
+        } else {
+            relatorioVendasGUI.setVisible(true);
+            relatorioVendasGUI.toFront();
+            try {
+                relatorioVendasGUI.setSelected(true);
+            } catch (java.beans.PropertyVetoException ignored) {
+            }
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -180,16 +226,14 @@ public class TelaPrincipal extends javax.swing.JFrame {
             protected void paintComponent(java.awt.Graphics g) {
                 super.paintComponent(g);
                 if (imagemFundo != null) {
-                    int imgW = imagemFundo.getWidth(this);
-                    int imgH = imagemFundo.getHeight(this);
-                    if (imgW > 0 && imgH > 0) {
-                        double scale = Math.min((double) getWidth() / imgW, (double) getHeight() / imgH);
-                        int drawW = (int) (imgW * scale);
-                        int drawH = (int) (imgH * scale);
-                        int x = (getWidth() - drawW) / 2;
-                        int y = (getHeight() - drawH) / 2;
-                        g.drawImage(imagemFundo, x, y, drawW, drawH, this);
-                    }
+                    java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                    g2.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION,
+                            java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                    g2.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING,
+                            java.awt.RenderingHints.VALUE_RENDER_QUALITY);
+                    // Preenche 100% da tela inicial sem bordas
+                    g2.drawImage(imagemFundo, 0, 0, getWidth(), getHeight(), this);
+                    g2.dispose();
                 }
             }
         };
@@ -197,11 +241,14 @@ public class TelaPrincipal extends javax.swing.JFrame {
         jMenuContatos = new javax.swing.JMenu();
         jMenuItemClientes = new javax.swing.JMenuItem();
         jMenuItemConsultaClientes = new javax.swing.JMenuItem();
-        jMenuUsuarios = new javax.swing.JMenu();
-        jMenuItemUsuarios = new javax.swing.JMenuItem();
         jMenuProdutos = new javax.swing.JMenu();
         jMenuItemProdutos = new javax.swing.JMenuItem();
         jMenuItemEstoque = new javax.swing.JMenuItem();
+        jMenuVendas = new javax.swing.JMenu();
+        jMenuItemRealizarVenda = new javax.swing.JMenuItem();
+        jMenuItemRelatorioVendas = new javax.swing.JMenuItem();
+        jMenuUsuarios = new javax.swing.JMenu();
+        jMenuItemUsuarios = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Voigelle - Sistema Principal");
@@ -236,8 +283,6 @@ public class TelaPrincipal extends javax.swing.JFrame {
         });
         jMenuUsuarios.add(jMenuItemUsuarios);
 
-        jMenuBar1.add(jMenuUsuarios);
-
         jMenuProdutos.setText("Produtos");
 
         jMenuItemProdutos.setText("Gerenciar Produtos");
@@ -256,7 +301,28 @@ public class TelaPrincipal extends javax.swing.JFrame {
         });
         jMenuProdutos.add(jMenuItemEstoque);
 
+        jMenuVendas.setText("Vendas");
+
+        jMenuItemRealizarVenda.setText("Lançar Venda");
+        jMenuItemRealizarVenda.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                abrirVenda();
+            }
+        });
+        jMenuVendas.add(jMenuItemRealizarVenda);
+
+        jMenuItemRelatorioVendas.setText("Relatório de Vendas");
+        jMenuItemRelatorioVendas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                abrirRelatorioVendas();
+            }
+        });
+        jMenuVendas.add(jMenuItemRelatorioVendas);
+
+        jMenuBar1.add(jMenuContatos);
         jMenuBar1.add(jMenuProdutos);
+        jMenuBar1.add(jMenuVendas);
+        jMenuBar1.add(jMenuUsuarios);
 
         setJMenuBar(jMenuBar1);
 
@@ -330,5 +396,8 @@ public class TelaPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItemUsuarios;
     private javax.swing.JMenu jMenuProdutos;
     private javax.swing.JMenu jMenuUsuarios;
+    private javax.swing.JMenu jMenuVendas;
+    private javax.swing.JMenuItem jMenuItemRealizarVenda;
+    private javax.swing.JMenuItem jMenuItemRelatorioVendas;
     // End of variables declaration//GEN-END:variables
 }

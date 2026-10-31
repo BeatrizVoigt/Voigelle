@@ -5,8 +5,16 @@ import com.beatriz.voigelle.model.Produto;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.PlainDocument;
 
 /**
  * Tela de Cadastro de Produtos – Loja Voigelle
@@ -209,7 +217,8 @@ public class ProdutosGUI extends JFrame {
         g.gridy  = linha++;
         g.insets = new Insets(0, 0, 6, 0);
         col.add(criarLabel("Preço (R$)"), g);
-        txtPreco = criarCampoTexto("Ex: 89,90");
+        txtPreco = criarCampoTexto("0,00");
+        aplicarMascaraMonetaria(txtPreco);
         txtPreco.addActionListener(e -> txtQuantidade.requestFocus());
         g.gridy  = linha++;
         g.insets = new Insets(0, 0, 16, 0);
@@ -325,7 +334,7 @@ public class ProdutosGUI extends JFrame {
         String categoria  = txtCategoria.getText().trim();
         String tamanho    = txtTamanho.getText().trim();
         String cor        = txtCor.getText().trim();
-        String precoStr   = txtPreco.getText().trim().replace(",", ".");
+        String precoStr   = txtPreco.getText().trim();
         String qtdStr     = txtQuantidade.getText().trim();
 
         // Validações básicas
@@ -338,14 +347,23 @@ public class ProdutosGUI extends JFrame {
             return;
         }
 
+        String apenasDigitos = precoStr.replaceAll("\\D", "");
+        if (apenasDigitos.isEmpty()) {
+            avisar("Informe o preço do produto!", txtPreco);
+            return;
+        }
+
         double preco;
         int    quantidade;
 
         try {
-            preco = Double.parseDouble(precoStr);
-            if (preco < 0) throw new NumberFormatException();
+            preco = Long.parseLong(apenasDigitos) / 100.0;
+            if (preco <= 0) {
+                avisar("O preço do produto deve ser maior que zero!", txtPreco);
+                return;
+            }
         } catch (NumberFormatException ex) {
-            avisar("Informe um preço válido (Ex: 89,90)!", txtPreco);
+            avisar("Informe um preço válido!", txtPreco);
             return;
         }
 
@@ -380,6 +398,99 @@ public class ProdutosGUI extends JFrame {
         txtPreco.setText("");
         txtQuantidade.setText("");
         txtNome.requestFocus();
+    }
+
+    private void aplicarMascaraMonetaria(JTextField campo) {
+        PlainDocument doc = (PlainDocument) campo.getDocument();
+        doc.setDocumentFilter(new CurrencyDocumentFilter(campo));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  Máscara monetária em tempo real (não depende de digitar vírgula ou ponto)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private static class CurrencyDocumentFilter extends DocumentFilter {
+        private final JTextField campo;
+        private final DecimalFormat df;
+
+        CurrencyDocumentFilter(JTextField campo) {
+            this.campo = campo;
+            DecimalFormatSymbols sym = new DecimalFormatSymbols(new Locale("pt", "BR"));
+            sym.setGroupingSeparator('.');
+            sym.setDecimalSeparator(',');
+            this.df = new DecimalFormat("#,##0.00", sym);
+        }
+
+        @Override
+        public void insertString(FilterBypass fb, int offset, String text, AttributeSet attr) throws BadLocationException {
+            replace(fb, offset, 0, text, attr);
+        }
+
+        @Override
+        public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+            Document doc = fb.getDocument();
+            String currentText = doc.getText(0, doc.getLength());
+
+            if (length == currentText.length() && (text == null || text.isEmpty())) {
+                fb.replace(0, length, "", attrs);
+                return;
+            }
+
+            StringBuilder sb = new StringBuilder(currentText);
+            sb.replace(offset, offset + length, text != null ? text : "");
+
+            formatDigits(fb, sb.toString(), attrs);
+        }
+
+        @Override
+        public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
+            Document doc = fb.getDocument();
+            String currentText = doc.getText(0, doc.getLength());
+
+            if (length == currentText.length()) {
+                fb.replace(0, length, "", null);
+                return;
+            }
+
+            StringBuilder sb = new StringBuilder(currentText);
+            sb.delete(offset, offset + length);
+
+            formatDigits(fb, sb.toString(), null);
+        }
+
+        private void formatDigits(FilterBypass fb, String rawText, AttributeSet attrs) throws BadLocationException {
+            Document doc = fb.getDocument();
+            String digits = rawText.replaceAll("\\D", "");
+
+            if (digits.isEmpty()) {
+                fb.replace(0, doc.getLength(), "", attrs);
+                return;
+            }
+
+            digits = digits.replaceFirst("^0+(?!$)", "");
+            if (digits.length() > 11) {
+                digits = digits.substring(0, 11);
+            }
+
+            long centavos = 0;
+            try {
+                centavos = Long.parseLong(digits);
+            } catch (NumberFormatException ignored) {}
+
+            if (centavos == 0) {
+                fb.replace(0, doc.getLength(), "0,00", attrs);
+            } else {
+                double val = centavos / 100.0;
+                String formatted = df.format(val);
+                fb.replace(0, doc.getLength(), formatted, attrs);
+            }
+
+            SwingUtilities.invokeLater(() -> {
+                if (campo != null) {
+                    campo.setCaretPosition(campo.getText().length());
+                }
+            });
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
