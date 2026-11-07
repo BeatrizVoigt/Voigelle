@@ -1,5 +1,6 @@
 package com.beatriz.voigelle.model;
 
+// Classe responsável por representar um contato no sistema.  
 public class Contato {
     private Integer id;
     private String nome;
